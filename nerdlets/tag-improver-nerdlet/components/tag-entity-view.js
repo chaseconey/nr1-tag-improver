@@ -15,6 +15,7 @@ import {
   TableHeaderCell,
   TableRow,
   TableRowCell,
+  TextField,
   navigation,
   NerdletStateContext,
   nerdlet,
@@ -57,6 +58,7 @@ export default class TagEntityView extends React.Component {
     showAllTags: true,
     dropDownSelectedTagValue: '',
     entityDisplayOption: DISPLAY_OPTION.SPECIFIC_TAG_VALUE, // only show entities with tag value present
+    searchKey: '',
   };
 
   static getDerivedStateFromProps(props, state) {
@@ -99,6 +101,7 @@ export default class TagEntityView extends React.Component {
         entityDisplayOption: this.getDisplayOption(this.props.selectedTagValue),
         selectedEntities: {},
         selectedEntityIds: [],
+        searchKey: '',
       });
     }
   }
@@ -226,6 +229,19 @@ export default class TagEntityView extends React.Component {
         }
       }
     }
+
+    // Filter results by search
+    if (this.state.searchKey) {
+      const searchKey = this.state.searchKey.toLowerCase();
+      const searchResults = {};
+      Object.entries(entities).forEach(([entityId, entity]) => {
+        if (entity.entityName.toLowerCase().includes(searchKey)) {
+          searchResults[entityId] = entity;
+        }
+      });
+      return Object.values(searchResults);
+    }
+
     return Object.values(entities);
   };
 
@@ -426,6 +442,16 @@ export default class TagEntityView extends React.Component {
               </Dropdown>
               ]
             </div>
+          </div>
+          <div>
+            <TextField
+              style={{ width: '100%' }}
+              onChange={(e) =>
+                this.setState({ searchKey: e.currentTarget.value })
+              }
+              value={this.state.searchKey}
+              placeholder="Search entities"
+            />
           </div>
           <div style={{ display: 'flex', flexDirection: 'row' }}>
             <div style={{ margin: '35px' }}>
